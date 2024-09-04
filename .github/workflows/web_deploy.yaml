@@ -1,0 +1,52 @@
+name: Deploying A static web using Terraform
+
+on:
+    push:
+        branches:
+            - master
+
+jobs:
+    terraform:
+        name: Terraform Apply
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout Code
+              uses: actions/checkout@v3
+
+            - name: Set up Terraform
+              uses: hashicorp/setup-terraform@v2
+              with: 
+                terraform_version: 1.9.5
+
+            - name: Initializing Terraform
+              run:  terraform init
+
+            - name: Planning Terraform
+              run:  terraform plan
+
+            - name: Applying Terraform
+              run:  terraform apply --auto-approve
+              env:
+                aws-access-key-id:      ${{ secrets.AWS_ACCESS_KEY_ID }} 
+                aws-secret-access-key:  ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+                aws-region: us-east-1
+
+deploying_website:
+    name:    Deploy to EC2
+    needs:   terraform
+    runs-on: ubuntu-latest
+
+    steps:
+        - name: Checkout Code
+          uses: actions/checkout@v3
+
+        - name: Upload Website Files
+          run:  |
+            IP_ADDRESS=$(terrafrom output -raw instance_public_ips)
+            for ip in $IP_ADDRESSES; do
+                scp -o StrictHostKeyChecking=no -i "${{ secrets.SSH_PRIVATE_KEY}}" -r ./my-static-web/* ec2-user@ip:/var/www/html/
+                done
+          env:
+            AWS_ACCESS_KEY_ID:      ${{ secrets.AWS_ACCESS_KEY_ID }}
+            AWS_SECRET_ACCESS_KEY:  ${{ secrets.AWS_SECRET_ACCESS_KEY }}
