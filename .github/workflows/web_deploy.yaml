@@ -21,9 +21,17 @@ jobs:
 
             - name: Initializing Terraform
               run:  terraform init
+              env:
+                aws-access-key-id:      ${{ secrets.AWS_ACCESS_KEY_ID }} 
+                aws-secret-access-key:  ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+                aws-region: us-east-1
 
             - name: Planning Terraform
               run:  terraform plan
+              env:
+                aws-access-key-id:      ${{ secrets.AWS_ACCESS_KEY_ID }} 
+                aws-secret-access-key:  ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+                aws-region: us-east-1
 
             - name: Applying Terraform
               run:  terraform apply --auto-approve
