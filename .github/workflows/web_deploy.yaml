@@ -18,26 +18,35 @@ jobs:
               uses: hashicorp/setup-terraform@v2
               with: 
                 terraform_version: 1.9.5
+            
+            - name: Configure Aws credentials
+              run: |
+                echo "[default]"> ~/.aws/credentials
+                echo "aws_access_key_id = $AWS_ACCESS_KEY_ID" >>~/.aws/credentials
+                echo "aws_secret_access_key= $AWS_SECRET_ACCESS_KEY" >>~/.aws/credentials
+              env:
+                AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+                AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY}}
 
             - name: Initializing Terraform
               run:  terraform init
               env:
-                aws-access-key-id:      ${ secrets.AWS_ACCESS_KEY_ID } 
-                aws-secret-access-key:  ${ secrets.AWS_SECRET_ACCESS_KEY }
+                AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+                AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY}}
                 aws-region: us-east-1
 
             - name: Planning Terraform
               run:  terraform plan
               env:
-                aws-access-key-id:      ${ secrets.AWS_ACCESS_KEY_ID } 
-                aws-secret-access-key:  ${ secrets.AWS_SECRET_ACCESS_KEY }
+                AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+                AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY}}
                 aws-region: us-east-1
 
             - name: Applying Terraform
               run:  terraform apply --auto-approve
               env:
-                aws-access-key-id:      ${ secrets.AWS_ACCESS_KEY_ID } 
-                aws-secret-access-key:  ${ secrets.AWS_SECRET_ACCESS_KEY }
+                AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+                AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY}}
                 aws-region: us-east-1
 
     deploy_website:
@@ -56,5 +65,5 @@ jobs:
                 scp -o StrictHostKeyChecking=no -i "${ secrets.SSH_PRIVATE_KEY }" -r ./my-static-web/* ec2-user@ip:/var/www/html/
                 done
           env:
-            aws-access-key-id:      ${ secrets.AWS_ACCESS_KEY_ID }
-            aws-secret-access-key:  ${ secrets.AWS_SECRET_ACCESS_KEY }
+            AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+            AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY}}
