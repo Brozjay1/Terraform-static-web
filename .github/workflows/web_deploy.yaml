@@ -43,8 +43,13 @@ jobs:
                 AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY}}
                 aws-region: us-east-1
 
-            - name: Applying Terraform
-              run:  terraform apply --auto-approve
+            - name: Applying or Destroying Terraform
+              run:  |
+                if  [[ "${{ github.event.inputs.action }}" == "destroy" ]]; then
+                    terraform destroy --auto-approve
+                else
+                    terraform apply --auto-approve
+                fi
               env:
                 AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
                 AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY}}
@@ -54,6 +59,7 @@ jobs:
         name:    Deploy website to EC2
         needs:   terraform
         runs-on: ubuntu-latest
+        if: ${{ github.event.inputs.action != 'destroy' }} # it will only run if action is not destroy
 
         steps:
         - name: Checkout Code
