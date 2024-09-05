@@ -61,7 +61,7 @@ jobs:
 
         - name: Upload Website Files
           run:  |
-            IP_ADDRESS=$(terrafrom output -raw instance_public_ips)
+            IP_ADDRESS=$(terraform output -raw instance_public_ips)
             for ip in $IP_ADDRESSES; do
                 scp -o StrictHostKeyChecking=no -i "${ secrets.SSH_PRIVATE_KEY }" -r ./my-static-web/* ec2-user@ip:/var/www/html/
                 done
